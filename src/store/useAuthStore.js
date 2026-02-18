@@ -15,6 +15,12 @@ export const useAuthStore = create((set, get) => ({
     pairingCode: null,
     isPairing: false,
 
+    // UI State
+    activeSidebar: "chats",
+    isProfileOpen: false,
+    setActiveSidebar: (view) => set({ activeSidebar: view, isProfileOpen: false }),
+    setProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
+
     checkAuth: async () => {
         try {
             const deviceId = localStorage.getItem("pingme_device_id");

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import ChatContainer from "./ChatContainer";
+import LeftNav from "./LeftNav";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { MessageSquare, Lock } from "lucide-react";
@@ -8,16 +9,19 @@ import { MessageSquare, Lock } from "lucide-react";
 export default function Dashboard() {
     const { selectedUser } = useChatStore();
     const { onlineUsers } = useAuthStore();
-    const [activeSidebar, setActiveSidebar] = useState("chats");
+    // activeSidebar is now managed in useAuthStore
 
     return (
         <div className="flex h-screen w-full bg-[#111b21] overflow-hidden text-[#e9edef]">
-            {/* Sidebar (Always visible on large screens, hidden on small if chat selected) */}
-            <div className={`${selectedUser ? "hidden lg:flex" : "flex"} w-full lg:w-[400px] h-full border-r border-[#2f3b43]`}>
-                <Sidebar activeSidebar={activeSidebar} setActiveSidebar={setActiveSidebar} />
+            {/* Navigation Rail - Hidden on mobile, visible on desktop */}
+            <LeftNav className="hidden lg:flex z-50" />
+
+            {/* Sidebar (Chat List) */}
+            <div className={`${selectedUser ? "hidden lg:flex" : "flex"} w-full lg:w-[400px] h-full border-r border-white/5`}>
+                <Sidebar />
             </div>
 
-            {/* Chat Area (Visible if chat selected, or placeholder) */}
+            {/* Chat Area */}
             <div className={`${!selectedUser ? "hidden lg:flex" : "flex"} flex-1 h-full flex-col bg-[#222e35]`}>
                 {selectedUser ? (
                     <ChatContainer />
