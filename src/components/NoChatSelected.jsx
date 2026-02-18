@@ -6,7 +6,7 @@ const NoChatSelected = () => {
             <div className="flex flex-col items-center text-center space-y-6">
                 {/* Illustration */}
                 <div className="w-64 h-64 bg-transparent relative">
-                    <img src="/whatsapp-web.png" alt="WhatsApp Web" className="w-full h-full object-contain opacity-40 grayscale" />
+                    <img src="/logo.jpg" alt="PingMe Web" className="w-full h-full object-contain opacity-40 grayscale" />
                 </div>
 
                 {/* Text Content */}
