@@ -24,7 +24,13 @@ export const useAuthStore = create((set, get) => ({
             get().connectSocket();
         } catch (error) {
             console.log("Error in checkAuth:", error);
-            set({ authUser: null });
+            // If device is unlinked (401), ensure we logout/clear state
+            if (error.response && error.response.status === 401) {
+                set({ authUser: null });
+                if (get().socket) get().socket.disconnect();
+            } else {
+                set({ authUser: null });
+            }
         } finally {
             set({ isCheckingAuth: false });
         }
@@ -55,6 +61,15 @@ export const useAuthStore = create((set, get) => ({
 
         newSocket.on("pairing:authorized", async ({ pairingToken }) => {
             await get().loginWithPairingToken(pairingToken);
+        });
+
+        // Listen for remote unlinking
+        newSocket.on("device:unlinked", ({ deviceId }) => {
+            const myDeviceId = localStorage.getItem("pingme_device_id");
+            if (deviceId === myDeviceId) {
+                get().logout();
+                toast.error("This device has been unlinked.");
+            }
         });
     },
 
