@@ -17,7 +17,9 @@ export const useAuthStore = create((set, get) => ({
 
     checkAuth: async () => {
         try {
-            const res = await axiosInstance.get("/auth/check");
+            const deviceId = localStorage.getItem("pingme_device_id");
+            // Send deviceId to update lastActiveAt
+            const res = await axiosInstance.get(`/auth/check?deviceId=${deviceId || ""}`);
             set({ authUser: res.data });
             get().connectSocket();
         } catch (error) {
