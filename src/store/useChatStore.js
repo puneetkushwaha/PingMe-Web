@@ -91,8 +91,80 @@ export const useChatStore = create((set, get) => ({
         if (socket) socket.off("newMessage");
     },
 
+    statuses: [],
+    isContactInfoOpen: false,
+    setIsContactInfoOpen: (isOpen) => set({ isContactInfoOpen: isOpen }),
+    isStatusesLoading: false,
+
+    getStatuses: async () => {
+        set({ isStatusesLoading: true });
+        try {
+            const res = await axiosInstance.get("/status");
+            set({ statuses: res.data });
+        } catch (error) {
+            console.error("Error fetching statuses:", error);
+        } finally {
+            set({ isStatusesLoading: false });
+        }
+    },
+
+    uploadStatus: async (statusData) => {
+        try {
+            const res = await axiosInstance.post("/status/upload", statusData);
+            await get().getStatuses();
+            toast.success("Status uploaded!");
+        } catch (error) {
+            toast.error("Failed to upload status");
+        }
+    },
+
+    viewStatus: async (statusId) => {
+        try {
+            await axiosInstance.post(`/status/view/${statusId}`);
+        } catch (error) {
+            console.error("Error viewing status:", error);
+        }
+    },
+
+    clearMessages: async (targetId) => {
+        try {
+            await axiosInstance.delete(`/messages/clear/${targetId}`);
+            set({ messages: [] });
+            toast.success("Chat cleared!");
+        } catch (error) {
+            toast.error("Failed to clear chat");
+        }
+    },
+
+    blockUser: async (targetId) => {
+        try {
+            const res = await axiosInstance.post(`/messages/block/${targetId}`);
+            const { authUser } = useAuthStore.getState();
+            if (authUser) {
+                useAuthStore.setState({
+                    authUser: { ...authUser, blockedUsers: res.data.blockedUsers }
+                });
+            }
+            toast.success(res.data.message);
+        } catch (error) {
+            toast.error("Failed to block user");
+        }
+    },
+
+    reportUser: async (targetId) => {
+        try {
+            const res = await axiosInstance.post(`/messages/report/${targetId}`);
+            toast.success(res.data.message);
+        } catch (error) {
+            toast.error("Failed to report user");
+        }
+    },
+
     setSelectedUser: (selectedItem) => {
         set({ selectedUser: selectedItem });
-        if (selectedItem) get().getMessages(selectedItem._id, selectedItem.isGroup);
+        if (selectedItem) {
+            get().getMessages(selectedItem._id, selectedItem.isGroup);
+            set({ isContactInfoOpen: false }); // Close info when switching users
+        }
     },
 }));

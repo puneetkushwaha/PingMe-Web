@@ -8,6 +8,10 @@ import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import NewGroupModal from "./NewGroupModal";
 import PairDeviceModal from "./PairDeviceModal";
+import ContactsSidebar from "./ContactsSidebar";
+import StatusSidebar from "./StatusSidebar";
+import SettingsSidebar from "./SettingsSidebar";
+import StarredMessagesSidebar from "./StarredMessagesSidebar";
 
 const Sidebar = () => {
     const { getUsers, users, getGroups, groups, selectedUser, setSelectedUser, isUsersLoading, isGroupsLoading, unreadCounts, typingUsers } = useChatStore();
@@ -30,6 +34,12 @@ const Sidebar = () => {
         }
     }, [activeSidebar, getCallHistory]);
 
+    // Sub-Sidebars logic
+    if (activeSidebar === "contacts") return <ContactsSidebar />;
+    if (activeSidebar === "status") return <StatusSidebar />;
+    if (activeSidebar === "settings") return <SettingsSidebar />;
+    if (activeSidebar === "starred") return <StarredMessagesSidebar />;
+
     const allItems = activeFilter === "groups" ? groups : users;
 
     const filteredItems = allItems.filter((item) => {
@@ -46,10 +56,10 @@ const Sidebar = () => {
     if (isUsersLoading) return <SidebarSkeleton />;
 
     return (
-        <aside className="h-full w-full lg:w-[400px] border-r border-white/5 flex flex-col bg-[#0a0a0a] transition-all duration-200">
+        <aside className="h-full w-full lg:w-[400px] border-r border-white/5 flex flex-col bg-[#111b21] transition-all duration-200">
 
             {/* Header - Changes based on View */}
-            <div className="h-16 px-4 flex items-center justify-between shrink-0 sticky top-0 z-20 bg-[#0a0a0a]">
+            <div className="h-16 px-4 flex items-center justify-between shrink-0 sticky top-0 z-20 bg-[#202c33]">
                 <h1 className="text-[#e9edef] text-[22px] font-bold">
                     {activeSidebar === "calls" ? "Calls" : "Chats"}
                 </h1>
@@ -57,7 +67,7 @@ const Sidebar = () => {
                     {activeSidebar === "calls" ? (
                         <Phone
                             className="size-5 cursor-pointer hover:text-white transition-colors"
-                            onClick={() => toast("Select contact to call")}
+                            onClick={() => setActiveSidebar("contacts")}
                         />
                     ) : (
                         <>
@@ -73,7 +83,7 @@ const Sidebar = () => {
                                             onClick={() => setIsGroupModalOpen(true)}
                                             className="w-full text-left px-4 py-3 text-sm text-[#e9edef] hover:bg-white/5 flex items-center gap-3"
                                         >
-                                            <UserPlus className="size-4" />
+                                            <Users className="size-4" />
                                             New group
                                         </button>
                                         <button
@@ -82,6 +92,20 @@ const Sidebar = () => {
                                         >
                                             <MonitorUp className="size-4" />
                                             Link a device
+                                        </button>
+                                        <button
+                                            onClick={() => { setActiveSidebar("settings"); }}
+                                            className="w-full text-left px-4 py-3 text-sm text-[#e9edef] hover:bg-white/5 flex items-center gap-3"
+                                        >
+                                            <Settings className="size-4" />
+                                            Settings
+                                        </button>
+                                        <button
+                                            onClick={logout}
+                                            className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-white/5 flex items-center gap-3"
+                                        >
+                                            <LogOut className="size-4" />
+                                            Log out
                                         </button>
                                     </div>
                                 </div>
@@ -92,12 +116,12 @@ const Sidebar = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="px-3 py-2 bg-[#0a0a0a]">
-                <div className="flex items-center gap-2 bg-[#1a1a1a] rounded-lg px-3 py-1.5 h-[40px] border border-white/5 group transition-all">
+            <div className="px-3 py-2 bg-[#111b21]">
+                <div className="flex items-center gap-2 bg-[#202c33] rounded-lg px-3 py-1.5 h-[35px] border border-white/5 group transition-all">
                     <Search className="size-4 text-[var(--wa-gray)] group-focus-within:text-[var(--wa-teal)] transition-colors" />
                     <input
                         type="text"
-                        placeholder="Search or start new chat"
+                        placeholder={activeSidebar === "calls" ? "Search calls" : "Search or start new chat"}
                         className="bg-transparent border-none outline-none text-[#e9edef] text-sm w-full placeholder-[var(--wa-gray)]"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -112,10 +136,10 @@ const Sidebar = () => {
                         whileTap={{ scale: 0.95 }}
                         key={filter}
                         onClick={() => setActiveFilter(filter.toLowerCase())}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all
+                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all
               ${activeFilter === filter.toLowerCase()
-                                ? "bg-[var(--wa-teal)] text-[#0a0a0a]"
-                                : "bg-[#1a1a1a] text-[var(--wa-gray)] hover:text-white"}`}
+                                ? "bg-[var(--wa-teal)]/10 text-[var(--wa-teal)]"
+                                : "bg-[#202c33] text-[var(--wa-gray)] hover:text-white"}`}
                     >
                         {filter}
                     </motion.button>
@@ -131,6 +155,7 @@ const Sidebar = () => {
                                 <Phone className="size-8 opacity-50" />
                             </div>
                             <p>No call history yet</p>
+                            <button onClick={() => setActiveSidebar("contacts")} className="mt-4 text-[var(--wa-teal)] text-sm font-medium">Start a call</button>
                         </div>
                     ) : (
                         calls.map((call) => {
@@ -141,44 +166,41 @@ const Sidebar = () => {
                             return (
                                 <div
                                     key={call._id}
-                                    className="w-full p-4 flex items-center gap-4 hover:bg-white/5 transition-all border-b border-white/5 group bg-[#0a0a0a]"
+                                    className="w-full p-3 flex items-center gap-4 hover:bg-[#202c33] transition-all cursor-pointer border-b border-white/5 group relative"
+                                    onClick={() => initiateCall(withUser._id, call.type)}
                                 >
                                     <div className="relative shrink-0">
                                         <img
                                             src={withUser.profilePic || "/avatar.png"}
                                             alt={withUser.fullName || "User"}
-                                            className="size-12 object-cover rounded-full border border-white/10"
+                                            className="size-12 object-cover rounded-full"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-center mb-0.5">
-                                            <h3 className="font-bold text-[#e9edef] truncate">{withUser.fullName || "Unknown"}</h3>
-                                            <span className="text-[10px] text-[var(--wa-gray)]">
-                                                {new Date(call.startedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                            </span>
+                                            <h3 className="font-medium text-[#e9edef] truncate">{withUser.fullName || "Unknown"}</h3>
                                         </div>
                                         <div className="flex items-center gap-1.5 text-[13px]">
                                             {call.status === "missed" ? (
                                                 <Phone className="size-3 text-red-500" />
                                             ) : isOutgoing ? (
-                                                <Phone className="size-3 text-emerald-500 rotate-[135deg]" />
+                                                <Phone className="size-3 text-[var(--wa-teal)] rotate-[135deg]" />
                                             ) : (
-                                                <Phone className="size-3 text-emerald-500" />
+                                                <Phone className="size-3 text-[var(--wa-teal)]" />
                                             )}
                                             <span className={`${call.status === "missed" ? "text-red-500" : "text-[var(--wa-gray)]"}`}>
                                                 {call.status === "missed" ? "Missed" : isOutgoing ? "Outgoing" : "Incoming"}
                                             </span>
                                             <span className="text-[var(--wa-gray)]">•</span>
                                             <span className="text-[var(--wa-gray)]">
-                                                {call.type === "video" ? "Video" : "Voice"}
+                                                {new Date(call.startedAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => initiateCall(withUser._id, call.type)}
-                                        className="p-2 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity bg-[#1a1a1a] rounded-full"
+                                        className="p-2 text-[var(--wa-teal)] opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
-                                        {call.type === "video" ? <Users className="size-5" /> : <Phone className="size-5" />}
+                                        <Phone className="size-5" />
                                     </button>
                                 </div>
                             );
@@ -198,15 +220,15 @@ const Sidebar = () => {
                                     onClick={() => setSelectedUser(item)}
                                     className={`
                   w-full p-3 flex items-center gap-3
-                  hover:bg-white/5 transition-all cursor-pointer border-b border-white/5
-                  ${selectedUser?._id === item._id ? "bg-[#1f2c33]" : ""}
+                  hover:bg-[#202c33] transition-all cursor-pointer border-b border-white/5
+                  ${selectedUser?._id === item._id ? "bg-[#202c33]" : ""}
                 `}
                                 >
                                     <div className="relative shrink-0">
                                         <img
-                                            src={item.profilePic || "/avatar.png"}
+                                            src={item.profilePic || item.groupPic || "/avatar.png"}
                                             alt={item.fullName || item.name}
-                                            className="size-11 object-cover rounded-full"
+                                            className="size-12 object-cover rounded-full"
                                         />
                                         {!item.isGroup && onlineUsers.includes(item._id) && (
                                             <span
@@ -218,17 +240,17 @@ const Sidebar = () => {
 
                                     {/* User/Group info */}
                                     <div className="text-left min-w-0 flex-1 py-1">
-                                        <div className="flex justify-between items-center">
-                                            <div className={`font-bold truncate text-[15px] ${selectedUser?._id === item._id ? "text-[var(--wa-text-primary)]" : "text-[#e9edef]"}`}>
+                                        <div className="flex justify-between items-center mb-0.5">
+                                            <div className={`font-medium truncate text-[17px] ${selectedUser?._id === item._id ? "text-[var(--wa-text-primary)]" : "text-[#e9edef]"}`}>
                                                 {item.fullName || item.name}
                                             </div>
-                                            <span className="text-[10px] text-[var(--wa-gray)]">
-                                                {item.lastMessageTime ? new Date(item.lastMessageTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''}
+                                            <span className={`text-[12px] ${unreadCounts[item._id] > 0 ? "text-[var(--wa-teal)] font-medium" : "text-[var(--wa-gray)]"}`}>
+                                                {item.lastMessageTime ? new Date(item.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                             </span>
                                         </div>
                                         <div className="text-[14px] truncate flex items-center gap-1 text-[var(--wa-gray)]">
                                             {typingUsers.includes(item._id) ? (
-                                                <span className="text-emerald-500 text-xs">typing...</span>
+                                                <span className="text-[var(--wa-teal)] text-xs font-medium">typing...</span>
                                             ) : (
                                                 <span className="truncate max-w-[200px]">{item.lastMessage || "Click to start chatting"}</span>
                                             )}
@@ -236,25 +258,20 @@ const Sidebar = () => {
                                     </div>
 
                                     {/* Unread Badge */}
-                                    <div className="flex flex-col items-end justify-center min-w-[30px] gap-2 absolute right-4 top-1/2 -translate-y-1/2 h-full py-3">
-                                        <div className="flex flex-col items-end gap-2 h-full justify-between pb-1">
-                                            <div className="h-4"></div> {/* Spacer for time position */}
-                                            <div className="flex items-center gap-2">
-                                                {!item.isGroup && unreadCounts[item._id] > 0 && (
-                                                    <span className="bg-[#00a884] text-[#111b21] text-[11px] font-bold rounded-full size-5 flex items-center justify-center shadow-lg">
-                                                        {unreadCounts[item._id]}
-                                                    </span>
-                                                )}
-                                            </div>
+                                    {unreadCounts[item._id] > 0 && (
+                                        <div className="flex flex-col items-end justify-center">
+                                            <span className="bg-[var(--wa-teal)] text-[#111b21] text-[12px] font-bold rounded-full size-5 flex items-center justify-center">
+                                                {unreadCounts[item._id]}
+                                            </span>
                                         </div>
-                                    </div>
+                                    )}
                                 </motion.div>
                             ))}
                         </AnimatePresence>
 
                         {filteredItems.length === 0 && (
                             <div className="text-center text-zinc-500 py-10 flex flex-col items-center">
-                                <div className="bg-[#1a1a1a] p-4 rounded-full mb-4">
+                                <div className="bg-[#202c33] p-4 rounded-full mb-4">
                                     {activeFilter === 'groups' ? <Users className="size-8 opacity-50" /> : <MessageSquarePlus className="size-8 opacity-50" />}
                                 </div>
                                 <p>No {activeFilter === 'groups' ? 'groups' : 'chats'} found</p>
