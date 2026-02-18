@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { QRCode } from "react-qrcode-logo";
-import { Monitor, Smartphone, Shield, Zap } from "lucide-react";
+import { MoreVertical, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function QRLogin() {
@@ -14,98 +14,74 @@ export default function QRLogin() {
     }, [initiatePairing]);
 
     return (
-        <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
-            {/* Background Elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/20 blur-[120px] rounded-full animate-float"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-600/20 blur-[120px] rounded-full animate-float" style={{ animationDelay: "2s" }}></div>
-
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="glass-card w-full max-w-4xl h-[600px] flex overflow-hidden shadow-2xl z-10 mx-4"
-            >
-                {/* Left Side: Brand & Instructions */}
-                <div className="flex-1 p-12 flex flex-col justify-between border-r border-white/5 bg-black/20">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="size-10 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                                <Zap className="text-black size-6" strokeWidth={2.5} />
-                            </div>
-                            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                                PingMe Link
-                            </h1>
+        <div className="h-screen w-full bg-[#111b21] flex flex-col relative overflow-hidden">
+            {/* Header */}
+            <div className="h-[220px] bg-[#00a884] w-full absolute top-0 left-0 z-0">
+                <div className="max-w-[1000px] mx-auto h-full flex items-center px-6 pt-8 items-start">
+                    <div className="flex items-center gap-2 text-white font-bold text-sm tracking-wide uppercase">
+                        <div className="size-6 bg-white rounded-full flex items-center justify-center">
+                            <span className="text-[#00a884] text-xs font-bold">P</span>
                         </div>
-                        <p className="text-[var(--text-secondary)] mt-2 text-lg font-light">
-                            Seamlessly sync your conversations across devices.
-                        </p>
+                        PingMe Web
                     </div>
+                </div>
+            </div>
 
-                    <div className="space-y-8">
-                        {[
-                            { step: 1, text: "Open PingMe on your phone" },
-                            { step: 2, text: "Go to Settings > Connected Devices" },
-                            { step: 3, text: "Tap 'Link a Device' and scan code" }
-                        ].map((item) => (
-                            <div key={item.step} className="flex items-center gap-4 group">
-                                <div className="size-8 rounded-full border border-white/10 flex items-center justify-center text-[var(--accent-primary)] font-bold bg-white/5 group-hover:bg-[var(--accent-primary)] group-hover:text-black transition-all duration-300">
-                                    {item.step}
-                                </div>
-                                <p className="text-gray-300 group-hover:text-white transition-colors">{item.text}</p>
-                            </div>
-                        ))}
-                    </div>
+            {/* Main Content Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="z-10 bg-white dark:bg-[#111b21] rounded-[3px] shadow-[0_17px_50px_0_rgba(0,0,0,0.19),0_12px_15px_0_rgba(0,0,0,0.24)] w-[90%] max-w-[1000px] h-[72%] mx-auto mt-28 flex overflow-hidden border border-[#2f3b43]"
+            >
+                {/* Left Side: Instructions */}
+                <div className="flex-1 p-10 md:p-14 text-[#e9edef]">
+                    <h1 className="text-[28px] font-light text-[#e9edef] mb-10">Use PingMe on your computer</h1>
 
-                    <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] bg-white/5 w-fit px-4 py-2 rounded-full border border-white/5">
-                        <Shield className="size-3 text-[var(--accent-primary)]" />
-                        <span>End-to-End Encrypted Session</span>
+                    <ol className="space-y-6 list-decimal list-outside ml-5 text-[18px] leading-[28px] text-[#e9edef]">
+                        <li>Open PingMe on your phone</li>
+                        <li>Tap <strong>Menu</strong> <MoreVertical className="inline size-4 bg-[#202c33] px-0.5 rounded" /> or <strong>Settings</strong> <Settings className="inline size-4 bg-[#202c33] px-0.5 rounded" /> and select <strong>Linked Devices</strong></li>
+                        <li>Tap on <strong>Link a Device</strong></li>
+                        <li>Point your phone to this screen to capture the code</li>
+                    </ol>
+
+                    <div className="mt-12 text-[#00a884] text-[15px] font-medium hover:underline cursor-pointer">
+                        Need help to get started?
                     </div>
                 </div>
 
                 {/* Right Side: QR Code */}
-                <div className="w-[400px] bg-black/40 flex flex-col items-center justify-center relative p-12">
-                    <div className="relative group">
-                        {/* Glow Effect */}
-                        <div className="absolute inset-0 bg-[var(--accent-primary)] blur-[40px] opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
-
-                        <div className="relative bg-white p-4 rounded-2xl shadow-2xl overflow-hidden">
+                <div className="w-[400px] p-10 flex flex-col items-center justify-center border-l border-[#2f3b43]">
+                    <div className="relative">
+                        <div className="bg-white p-2 rounded-lg relative overflow-hidden group">
                             {pairingCode ? (
-                                <>
-                                    <QRCode
-                                        value={pairingCode}
-                                        size={220}
-                                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                        qrStyle="dots"
-                                        eyeRadius={8}
-                                        fgColor="#000000"
-                                    />
-                                    {/* Scanning Animation */}
-                                    <div className="animate-scan"></div>
-                                </>
+                                <QRCode
+                                    value={pairingCode}
+                                    size={264}
+                                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                    fgColor="#111b21"
+                                />
                             ) : (
-                                <div className="size-[220px] flex items-center justify-center bg-gray-100 rounded-lg">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                <div className="size-[264px] flex items-center justify-center bg-gray-100">
+                                    <div className="size-10 border-4 border-[#00a884] border-t-transparent rounded-full animate-spin"></div>
                                 </div>
                             )}
+
+                            {/* Logo Overlay */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-full">
+                                <div className="size-10 bg-[#00a884] rounded-full flex items-center justify-center text-white font-bold">P</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="mt-8 text-center space-y-2">
-                        <div className="flex items-center justify-center gap-2 text-[var(--accent-primary)] font-medium">
-                            <Monitor className="size-4" />
-                            <span>Web Client</span>
+                    <div className="mt-8 flex items-center gap-2">
+                        <div className="checkbox-wrapper-1">
+                            <input id="keep-signed-in" type="checkbox" className="accent-[#00a884]" defaultChecked />
+                            <label htmlFor="keep-signed-in" className="text-[#e9edef] text-[15px] ml-2 cursor-pointer">Keep me signed in</label>
                         </div>
-                        <p className="text-sm text-[var(--text-secondary)]">
-                            Keep your phone connected to sync messages
-                        </p>
                     </div>
                 </div>
             </motion.div>
-
-            <div className="absolute bottom-8 flex items-center gap-2 text-[var(--text-secondary)] opacity-50 text-sm">
-                <Smartphone className="size-4" />
-                <span>Supports iOS & Android</span>
-            </div>
         </div>
     );
 }
