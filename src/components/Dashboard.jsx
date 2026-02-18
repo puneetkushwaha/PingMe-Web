@@ -6,9 +6,10 @@ import ChatContainer from "./ChatContainer";
 import NoChatSelected from "./NoChatSelected";
 import ContactInfoSidebar from "./ContactInfoSidebar";
 import ProfileSettings from "./ProfileSettings";
+import StatusViewer from "./StatusViewer";
 
 const Dashboard = () => {
-    const { selectedUser, isContactInfoOpen } = useChatStore();
+    const { selectedUser, isContactInfoOpen, viewingStatus, setViewingStatus } = useChatStore();
     const { isProfileOpen } = useAuthStore();
 
     return (
@@ -40,6 +41,11 @@ const Dashboard = () => {
                         <div className="xl:hidden absolute inset-0 z-[100] bg-[#111b21]">
                             <ContactInfoSidebar />
                         </div>
+                    )}
+
+                    {/* Status Viewer Overlay */}
+                    {viewingStatus && (
+                        <StatusViewer statusItem={viewingStatus} onClose={() => setViewingStatus(null)} />
                     )}
                 </div>
             </div>

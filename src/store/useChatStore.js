@@ -167,4 +167,42 @@ export const useChatStore = create((set, get) => ({
             set({ isContactInfoOpen: false }); // Close info when switching users
         }
     },
+
+    viewingStatus: null,
+    setViewingStatus: (status) => set({ viewingStatus: status }),
+
+    starredMessages: [],
+    isStarredLoading: false,
+
+    getStarredMessages: async () => {
+        set({ isStarredLoading: true });
+        try {
+            const res = await axiosInstance.get("/messages/starred");
+            set({ starredMessages: res.data });
+        } catch (error) {
+            console.error("Error fetching starred messages:", error);
+        } finally {
+            set({ isStarredLoading: false });
+        }
+    },
+
+    starMessage: async (messageId) => {
+        try {
+            await axiosInstance.post(`/messages/star/${messageId}`);
+            await get().getStarredMessages();
+            toast.success("Message starred");
+        } catch (error) {
+            toast.error("Failed to star message");
+        }
+    },
+
+    unstarMessage: async (messageId) => {
+        try {
+            await axiosInstance.post(`/messages/unstar/${messageId}`);
+            await get().getStarredMessages();
+            toast.success("Message unstarred");
+        } catch (error) {
+            toast.error("Failed to unstar message");
+        }
+    },
 }));

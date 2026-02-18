@@ -1,5 +1,6 @@
 import { ArrowLeft, Moon, Bell, Shield, HelpCircle, LogOut } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import toast from "react-hot-toast";
 
 const SettingsSidebar = () => {
     const { setActiveSidebar, logout, authUser } = useAuthStore();
@@ -29,7 +30,7 @@ const SettingsSidebar = () => {
 
                 {/* Settings List */}
                 <div className="space-y-1">
-                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]">
+                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]" onClick={() => toast.success("Notification settings coming soon!")}>
                         <Bell className="size-6 text-[var(--wa-gray)]" />
                         <div className="flex-1 border-b border-white/5 pb-4">
                             <h3 className="text-[17px]">Notifications</h3>
@@ -37,7 +38,7 @@ const SettingsSidebar = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]">
+                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]" onClick={() => toast.success("Privacy settings coming soon!")}>
                         <Shield className="size-6 text-[var(--wa-gray)]" />
                         <div className="flex-1 border-b border-white/5 pb-4">
                             <h3 className="text-[17px]">Privacy</h3>
@@ -45,7 +46,23 @@ const SettingsSidebar = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]">
+                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]" onClick={() => toast.success("Notification settings coming soon!")}>
+                        <Bell className="size-6 text-[var(--wa-gray)]" />
+                        <div className="flex-1 border-b border-white/5 pb-4">
+                            <h3 className="text-[17px]">Notifications</h3>
+                            <p className="text-[var(--wa-gray)] text-sm">Message, group & call tones</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]" onClick={() => toast.success("Privacy settings coming soon!")}>
+                        <Shield className="size-6 text-[var(--wa-gray)]" />
+                        <div className="flex-1 border-b border-white/5 pb-4">
+                            <h3 className="text-[17px]">Privacy</h3>
+                            <p className="text-[var(--wa-gray)] text-sm">Block contacts, disappearing messages</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]" onClick={() => toast.success("Theme toggled! (Mock)")}>
                         <Moon className="size-6 text-[var(--wa-gray)]" />
                         <div className="flex-1 border-b border-white/5 pb-4">
                             <h3 className="text-[17px]">Theme</h3>
@@ -53,7 +70,7 @@ const SettingsSidebar = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]">
+                    <div className="flex items-center gap-4 p-4 hover:bg-[#202c33] cursor-pointer transition-colors text-[#e9edef]" onClick={() => toast.success("Help center coming soon!")}>
                         <HelpCircle className="size-6 text-[var(--wa-gray)]" />
                         <div className="flex-1 border-b border-white/5 pb-4">
                             <h3 className="text-[17px]">Help</h3>
