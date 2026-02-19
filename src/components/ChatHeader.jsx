@@ -30,7 +30,7 @@ const ChatHeader = () => {
     if (!selectedUser) return null;
 
     const isTyping = selectedUser && typingUsers.includes(selectedUser._id);
-    const isOnline = onlineUsers.includes(selectedUser._id);
+    const isOnline = onlineUsers.includes(selectedUser._id) && selectedUser.privacy?.lastSeen !== "nobody";
 
     return (
         <div className="px-4 py-2.5 bg-[#202c33] border-b border-[#2f3b43] sticky top-0 z-30 w-full">
@@ -66,7 +66,7 @@ const ChatHeader = () => {
                                 ) : isOnline ? (
                                     "Online"
                                 ) : (
-                                    selectedUser.lastSeen ? `last seen ${formatLastSeen(selectedUser.lastSeen)}` : ""
+                                    (selectedUser.lastSeen && selectedUser.privacy?.lastSeen !== "nobody") ? `last seen ${formatLastSeen(selectedUser.lastSeen)}` : ""
                                 )}
                             </p>
                         </div>

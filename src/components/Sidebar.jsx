@@ -230,10 +230,10 @@ const Sidebar = () => {
                                             alt={item.fullName || item.name}
                                             className="size-12 object-cover rounded-full"
                                         />
-                                        {!item.isGroup && onlineUsers.includes(item._id) && (
+                                        {!item.isGroup && onlineUsers.includes(item._id) && item.privacy?.lastSeen !== "nobody" && (
                                             <span
                                                 className="absolute bottom-0 right-0 size-3 bg-emerald-500 
-                      ring-2 ring-[#0a0a0a] rounded-full"
+                                      ring-2 ring-[#0a0a0a] rounded-full"
                                             />
                                         )}
                                     </div>

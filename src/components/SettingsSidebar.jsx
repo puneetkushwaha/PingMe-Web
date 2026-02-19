@@ -21,6 +21,9 @@ const SettingsSidebar = () => {
     const [phone, setPhone] = useState(authUser?.phone || "");
     const [selectedImg, setSelectedImg] = useState(null);
 
+    // Privacy selection state
+    const [privacySelection, setPrivacySelection] = useState(null); // { key: 'lastSeen', title: 'Last seen and online' }
+
     const renderMainSettings = () => (
         <div className="flex-1 overflow-y-auto py-2 animate-in fade-in slide-in-from-right-4 duration-300 custom-scrollbar">
             {/* Profile Card */}
@@ -243,31 +246,103 @@ const SettingsSidebar = () => {
         </SubSectionLayout>
     );
 
+    const handleUpdatePrivacy = async (key, value) => {
+        await updateProfile({
+            privacy: {
+                ...authUser.privacy,
+                [key]: value
+            }
+        });
+        setPrivacySelection(null);
+    };
+
+    const renderPrivacySelection = () => (
+        <SubSectionLayout title={privacySelection.title} onBack={() => setPrivacySelection(null)}>
+            <div className="py-2 bg-[#111b21] flex-1">
+                <div className="p-4 text-[var(--wa-teal)] text-sm font-medium">Who can see my {privacySelection.title.toLowerCase()}</div>
+                <div className="bg-[#202c33]/50 mx-4 rounded-xl overflow-hidden ring-1 ring-white/5">
+                    {["everyone", "nobody"].map((option) => (
+                        <div
+                            key={option}
+                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-none"
+                            onClick={() => handleUpdatePrivacy(privacySelection.key, option)}
+                        >
+                            <span className="text-[#e9edef] capitalize">{option}</span>
+                            <div className={`size-5 rounded-full border-2 flex items-center justify-center ${authUser?.privacy?.[privacySelection.key] === option ? "border-[var(--wa-teal)]" : "border-[var(--wa-gray)]"}`}>
+                                {authUser?.privacy?.[privacySelection.key] === option && (
+                                    <div className="size-2.5 bg-[var(--wa-teal)] rounded-full animate-in zoom-in duration-200" />
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <p className="px-6 py-4 text-[var(--wa-gray)] text-xs leading-relaxed">
+                    If you don't share your {privacySelection.title.toLowerCase()}, you won't be able to see other people's {privacySelection.title.toLowerCase()}.
+                </p>
+            </div>
+        </SubSectionLayout>
+    );
+
     const renderPrivacy = () => (
         <SubSectionLayout title="Privacy" onBack={() => setActiveSection("main")}>
-            <div className="p-4 space-y-6">
-                <div className="space-y-4">
-                    <h3 className="text-[#00a884] text-sm font-medium ml-2">Who can see my info</h3>
-                    <div className="bg-[#202c33]/50 rounded-xl overflow-hidden ring-1 ring-white/5">
-                        <PrivacyItem title="Last seen and online" value="Everyone" />
-                        <PrivacyItem title="Profile photo" value="Everyone" />
-                        <PrivacyItem title="About" value="Everyone" />
-                        <PrivacyItem title="Status" value="My contacts" />
+            <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#111b21]">
+                <div className="p-4 space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-[#00a884] text-sm font-medium ml-2 uppercase tracking-wider text-[11px]">Who can see my info</h3>
+                        <div className="bg-[#202c33]/50 rounded-xl overflow-hidden ring-1 ring-white/5">
+                            <PrivacyItem
+                                title="Last seen and online"
+                                value={authUser?.privacy?.lastSeen || "everyone"}
+                                onClick={() => setPrivacySelection({ key: "lastSeen", title: "Last seen and online" })}
+                            />
+                            <PrivacyItem
+                                title="Profile photo"
+                                value={authUser?.privacy?.profilePic || "everyone"}
+                                onClick={() => setPrivacySelection({ key: "profilePic", title: "Profile photo" })}
+                            />
+                            <PrivacyItem
+                                title="About"
+                                value={authUser?.privacy?.about || "everyone"}
+                                onClick={() => setPrivacySelection({ key: "about", title: "About" })}
+                            />
+                            <PrivacyItem
+                                title="Status"
+                                value="My contacts"
+                                subtitle="Status updates are visible to contacts only"
+                            />
+                        </div>
                     </div>
-                </div>
-                <div className="bg-[#202c33]/50 rounded-xl p-4 ring-1 ring-white/5 flex items-center justify-between">
-                    <div>
-                        <p className="text-[#e9edef]">Read receipts</p>
-                        <p className="text-xs text-[var(--wa-gray)]">Show when you've read messages</p>
+
+                    <div className="bg-[#202c33]/50 rounded-xl p-4 ring-1 ring-white/5 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-[#e9edef]">Read receipts</p>
+                                <p className="text-xs text-[var(--wa-gray)]">Show when you've read messages</p>
+                            </div>
+                            <input
+                                type="checkbox"
+                                className="toggle toggle-success toggle-sm"
+                                checked={authUser?.privacy?.readReceipts !== false}
+                                onChange={(e) => handleUpdatePrivacy("readReceipts", e.target.checked)}
+                            />
+                        </div>
+                        <p className="text-[11px] text-[var(--wa-gray)] leading-relaxed italic opacity-70">
+                            If turned off, you won't send or receive Read receipts. Read receipts are always sent for group chats.
+                        </p>
                     </div>
-                    <input type="checkbox" className="toggle toggle-success toggle-sm" defaultChecked />
-                </div>
-                <div className="bg-[#202c33]/50 rounded-xl p-4 ring-1 ring-white/5 flex items-center justify-between cursor-pointer">
-                    <div>
-                        <p className="text-[#e9edef]">Blocked contacts</p>
-                        <p className="text-xs text-[var(--wa-gray)]">{authUser?.blockedUsers?.length || 0} contacts</p>
+
+                    <div className="bg-[#202c33]/50 rounded-xl p-4 ring-1 ring-white/5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-[#2a3942] p-2 rounded-lg text-[var(--wa-gray)] group-hover:text-[#00a884] transition-colors">
+                                <Shield className="size-5" />
+                            </div>
+                            <div>
+                                <p className="text-[#e9edef] font-medium">Blocked contacts</p>
+                                <p className="text-xs text-[var(--wa-gray)] uppercase tracking-tight">{authUser?.blockedUsers?.length || 0} contacts</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="size-5 text-[var(--wa-gray)]/30" />
                     </div>
-                    <ChevronRight className="size-5 text-[var(--wa-gray)]" />
                 </div>
             </div>
         </SubSectionLayout>
@@ -374,7 +449,7 @@ const SettingsSidebar = () => {
             <div className="flex-1 overflow-hidden flex flex-col">
                 {activeSection === "main" && renderMainSettings()}
                 {activeSection === "account" && renderAccount()}
-                {activeSection === "privacy" && renderPrivacy()}
+                {activeSection === "privacy" && (privacySelection ? renderPrivacySelection() : renderPrivacy())}
                 {activeSection === "chats" && renderChats()}
                 {activeSection === "notifications" && renderNotifications()}
             </div>
@@ -402,12 +477,17 @@ const SubSectionLayout = ({ title, children, onBack }) => (
     </div>
 );
 
-const PrivacyItem = ({ title, value }) => (
-    <div className="p-4 border-b border-white/5 last:border-none hover:bg-white/5 cursor-pointer flex items-center justify-between transition-colors">
-        <div>
-            <p className="text-[#e9edef]">{title}</p>
-            <p className="text-[#00a884] text-sm">{value}</p>
+const PrivacyItem = ({ title, value, subtitle, onClick }) => (
+    <div
+        className={`p-4 border-b border-white/5 last:border-none hover:bg-white/5 flex items-center justify-between transition-colors ${onClick ? "cursor-pointer" : ""}`}
+        onClick={onClick}
+    >
+        <div className="flex-1">
+            <p className="text-[#e9edef] font-medium">{title}</p>
+            <p className="text-[#00a884] text-sm capitalize">{value}</p>
+            {subtitle && <p className="text-[10px] text-[var(--wa-gray)] mt-1 opacity-70 italic">{subtitle}</p>}
         </div>
+        {onClick && <ChevronRight className="size-4 text-[var(--wa-gray)]/30" />}
     </div>
 );
 
