@@ -93,9 +93,12 @@ export const useChatStore = create((set, get) => ({
 
                     // Sound
                     if (notificationSettings.notificationSound !== false) {
-                        if (!get().notiSound) {
-                            set({ notiSound: new Audio("/notification.mp3") });
+                        const selectedSoundFile = notificationSettings?.selectedSound || "notification.mp3";
+
+                        if (!get().notiSound || get().notiSound.src.split('/').pop() !== selectedSoundFile) {
+                            set({ notiSound: new Audio(`/${selectedSoundFile}`) });
                         }
+
                         const sound = get().notiSound;
                         sound.currentTime = 0;
                         sound.play().catch(() => { });
