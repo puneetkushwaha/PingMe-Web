@@ -1,7 +1,4 @@
-import { create } from "zustand";
-import toast from "react-hot-toast";
-import { axiosInstance } from "../lib/axios";
-import { useAuthStore } from "./useAuthStore";
+import { encryptMessage, decryptMessage } from "../lib/encryption";
 
 export const useChatStore = create((set, get) => ({
     messages: [],
@@ -41,7 +38,14 @@ export const useChatStore = create((set, get) => ({
         try {
             const endpoint = isGroup ? `/groups/${id}` : `/messages/${id}`;
             const res = await axiosInstance.get(endpoint);
-            set({ messages: res.data });
+
+            // Decrypt messages
+            const messages = res.data.map(msg => ({
+                ...msg,
+                text: msg.isEncrypted ? decryptMessage(msg.text) : msg.text
+            }));
+
+            set({ messages });
 
             if (!isGroup) {
                 set((state) => ({ unreadCounts: { ...state.unreadCounts, [id]: 0 } }));
@@ -58,8 +62,16 @@ export const useChatStore = create((set, get) => ({
         const { selectedUser, messages } = get();
         try {
             const endpoint = selectedUser.isGroup ? `/groups/send/${selectedUser._id}` : `/messages/send/${selectedUser._id}`;
-            const res = await axiosInstance.post(endpoint, messageData);
-            set({ messages: [...messages, res.data] });
+
+            const encryptedText = messageData.text ? encryptMessage(messageData.text) : messageData.text;
+            const payload = { ...messageData, text: encryptedText, isEncrypted: !!encryptedText };
+
+            const res = await axiosInstance.post(endpoint, payload);
+
+            // Optimistic/Local update with original text
+            const newMessage = { ...res.data, text: messageData.text };
+
+            set({ messages: [...messages, newMessage] });
         } catch (error) {
             toast.error("Error sending message");
         }
@@ -74,8 +86,14 @@ export const useChatStore = create((set, get) => ({
             const isGroupMessage = !!newMessage.groupId;
             const idToMatch = isGroupMessage ? newMessage.groupId : newMessage.senderId;
 
+            // Decrypt incoming message immediately
+            const decryptedMessage = {
+                ...newMessage,
+                text: newMessage.isEncrypted ? decryptMessage(newMessage.text) : newMessage.text
+            };
+
             if (selectedUser && idToMatch === selectedUser._id) {
-                set({ messages: [...get().messages, newMessage] });
+                set({ messages: [...get().messages, decryptedMessage] });
                 if (!isGroupMessage) socket.emit("markMessagesAsSeen", { senderId: selectedUser._id });
             } else {
                 if (!isGroupMessage) {
