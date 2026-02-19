@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const ChatContainer = () => {
     const { messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unsubscribeFromMessages, searchQuery } = useChatStore();
-    const { authUser } = useAuthStore();
+    const { authUser, socket } = useAuthStore();
     const { wallpaper: localWallpaper } = useThemeStore();
     const wallpaper = authUser?.chatSettings?.wallpaper || localWallpaper;
     const mediaVisibility = authUser?.chatSettings?.mediaVisibility !== false;
@@ -20,7 +20,7 @@ const ChatContainer = () => {
         getMessages(selectedUser._id, selectedUser.isGroup);
         subscribeToMessages();
         return () => unsubscribeFromMessages();
-    }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+    }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, socket]);
 
     useEffect(() => {
         if (messageEndRef.current) {
