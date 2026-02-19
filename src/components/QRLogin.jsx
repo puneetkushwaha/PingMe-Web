@@ -18,12 +18,10 @@ export default function QRLogin() {
             {/* Header */}
             <div className="h-[220px] bg-[#00a884] w-full absolute top-0 left-0 z-0">
                 <div className="max-w-[1000px] mx-auto h-full flex items-center px-6 pt-8 items-start">
-                    <div className="flex items-center gap-3 text-white font-bold text-sm tracking-wide uppercase">
-                        <div className="size-10 bg-white rounded-full flex items-center justify-center overflow-hidden p-1">
-                            <img src="/logo.png" className="w-full h-full object-contain" alt="Logo" />
-                        </div>
-                        <span className="text-[19px]">PingMe Web</span>
+                    <div className="size-12 rounded-full flex items-center justify-center overflow-hidden">
+                        <img src="/logo.png" className="w-full h-full object-cover" alt="Logo" />
                     </div>
+                    <span className="text-[19px]">PingMe Web</span>
                 </div>
             </div>
 
@@ -68,8 +66,8 @@ export default function QRLogin() {
                             )}
 
                             {/* Logo Overlay */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-full overflow-hidden">
-                                <img src="/logo.png" className="size-10 object-contain" alt="Logo" />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden shadow-lg border-2 border-white">
+                                <img src="/logo.png" className="size-10 object-cover" alt="Logo" />
                             </div>
                         </div>
                     </div>
@@ -82,6 +80,6 @@ export default function QRLogin() {
                     </div>
                 </div>
             </motion.div>
-        </div>
+        </div >
     );
 }

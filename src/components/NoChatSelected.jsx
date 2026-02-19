@@ -5,8 +5,8 @@ const NoChatSelected = () => {
         <div className="w-full flex-1 flex flex-col items-center justify-center p-16 bg-[#222e35]/30">
             <div className="flex flex-col items-center text-center space-y-6">
                 {/* Illustration */}
-                <div className="w-64 h-64 bg-white rounded-full flex items-center justify-center p-8 relative shadow-2xl">
-                    <img src="/logo.png" alt="PingMe Web" className="w-full h-full object-contain opacity-90" />
+                <div className="w-64 h-64 rounded-full flex items-center justify-center relative overflow-hidden">
+                    <img src="/logo.png" alt="PingMe Web" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Text Content */}
