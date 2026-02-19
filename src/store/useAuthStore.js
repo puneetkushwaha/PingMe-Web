@@ -10,10 +10,26 @@ export const useAuthStore = create((set, get) => ({
     authUser: null,
     isCheckingAuth: true,
     isLoggingIn: false,
+    isUpdatingProfile: false,
     onlineUsers: [],
     socket: null,
     pairingCode: null,
     isPairing: false,
+
+    // ✅ Update user profile
+    updateProfile: async (data) => {
+        set({ isUpdatingProfile: true });
+        try {
+            const res = await axiosInstance.put("/auth/update-profile", data);
+            set({ authUser: res.data });
+            toast.success("Profile updated successfully");
+        } catch (error) {
+            console.error("Error in updateProfile:", error?.response?.data?.message || error.message);
+            toast.error(error?.response?.data?.message || "Profile update failed");
+        } finally {
+            set({ isUpdatingProfile: false });
+        }
+    },
 
     // UI State
     activeSidebar: "chats",
