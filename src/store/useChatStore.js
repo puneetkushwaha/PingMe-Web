@@ -12,6 +12,7 @@ export const useChatStore = create((set, get) => ({
     isMessagesLoading: false,
     unreadCounts: {},
     typingUsers: [],
+    notiSound: null,
 
     getUsers: async () => {
         set({ isUsersLoading: true });
@@ -81,6 +82,39 @@ export const useChatStore = create((set, get) => ({
                     set((state) => ({
                         unreadCounts: { ...state.unreadCounts, [newMessage.senderId]: (state.unreadCounts[newMessage.senderId] || 0) + 1 }
                     }));
+
+                    // Sound and Browser Notification Logic
+                    const { authUser } = useAuthStore.getState();
+                    const notificationSettings = authUser?.notificationSettings || {
+                        showNotifications: true,
+                        showPreviews: true,
+                        notificationSound: true
+                    };
+
+                    // Sound
+                    if (notificationSettings.notificationSound !== false) {
+                        if (!get().notiSound) {
+                            set({ notiSound: new Audio("/notification.mp3") });
+                        }
+                        const sound = get().notiSound;
+                        sound.currentTime = 0;
+                        sound.play().catch(() => { });
+                    }
+
+                    // Browser Notification
+                    if (notificationSettings.showNotifications !== false && Notification.permission === "granted") {
+                        const sender = get().users.find(u => u._id === newMessage.senderId);
+                        const senderName = sender?.fullName || "Someone";
+
+                        const notificationBody = notificationSettings.showPreviews !== false
+                            ? (newMessage.text || "Sent a media file")
+                            : "New message";
+
+                        new Notification(`New message from ${isGroupMessage ? "Group" : senderName}`, {
+                            body: notificationBody,
+                            icon: "/icon-192x192.png"
+                        });
+                    }
                 }
             }
         });
