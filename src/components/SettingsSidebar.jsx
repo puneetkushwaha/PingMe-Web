@@ -2,15 +2,30 @@ import { useState } from "react";
 import {
     ArrowLeft, Moon, Bell, Shield, HelpCircle, LogOut, ChevronRight,
     Key, CircleUser, Languages, Database, Accessibility, Info,
-    Smartphone, Volume2, Edit2, Check
+    Smartphone, Volume2, Edit2, Check, Camera
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useThemeStore } from "../store/useThemeStore";
 import toast from "react-hot-toast";
 
 const SettingsSidebar = () => {
     const { setActiveSidebar, logout, authUser, updateProfile, isUpdatingProfile } = useAuthStore();
     const [activeSection, setActiveSection] = useState("main"); // "main", "account", "privacy", "chats", "notifications", "help"
-    const [theme, setTheme] = useState("dark"); // Mock local state for theme toggle
+    const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+
+    const handleUpdateChatSettings = async (key, value) => {
+        try {
+            await updateProfile({
+                chatSettings: {
+                    ...authUser?.chatSettings,
+                    [key]: value
+                }
+            });
+            toast.success("Settings updated");
+        } catch (error) {
+            toast.error("Failed to update settings");
+        }
+    };
 
     // Local state for editing
     const [isEditingName, setIsEditingName] = useState(false);
@@ -21,8 +36,13 @@ const SettingsSidebar = () => {
     const [phone, setPhone] = useState(authUser?.phone || "");
     const [selectedImg, setSelectedImg] = useState(null);
 
-    // Privacy selection state
-    const [privacySelection, setPrivacySelection] = useState(null); // { key: 'lastSeen', title: 'Last seen and online' }
+    const { setWallpaper, wallpaper: localWallpaper } = useThemeStore();
+
+    const WALLPAPERS = [
+        { id: "obsidian", name: "Default Obsidian", url: "https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png" },
+        { id: "minimal", name: "Minimal Gray", url: "https://wallpaperaccess.com/full/1556608.jpg" },
+        { id: "abstract", name: "Dark Abstract", url: "https://wallpaperaccess.com/full/2109.jpg" },
+    ];
 
     const renderMainSettings = () => (
         <div className="flex-1 overflow-y-auto py-2 animate-in fade-in slide-in-from-right-4 duration-300 custom-scrollbar">
@@ -246,14 +266,21 @@ const SettingsSidebar = () => {
         </SubSectionLayout>
     );
 
+    const [privacySelection, setPrivacySelection] = useState(null);
+
     const handleUpdatePrivacy = async (key, value) => {
-        await updateProfile({
-            privacy: {
-                ...authUser.privacy,
-                [key]: value
-            }
-        });
-        setPrivacySelection(null);
+        try {
+            await updateProfile({
+                privacy: {
+                    ...authUser?.privacy,
+                    [key]: value
+                }
+            });
+            setPrivacySelection(null);
+            toast.success("Privacy settings updated");
+        } catch (error) {
+            toast.error("Failed to update privacy");
+        }
     };
 
     const renderPrivacySelection = () => (
@@ -350,9 +377,9 @@ const SettingsSidebar = () => {
 
     const renderChats = () => (
         <SubSectionLayout title="Chats" onBack={() => setActiveSection("main")}>
-            <div className="p-4 space-y-6">
+            <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#111b21] p-4 space-y-6">
                 <div className="space-y-4">
-                    <h3 className="text-[#00a884] text-sm font-medium ml-2">Display</h3>
+                    <h3 className="text-[#00a884] text-sm font-medium ml-2 uppercase tracking-wider text-[11px]">Display</h3>
                     <div className="bg-[#202c33]/50 rounded-xl overflow-hidden ring-1 ring-white/5">
                         <div className="p-4 flex items-center justify-between border-b border-white/5">
                             <div className="flex items-center gap-4">
@@ -366,25 +393,59 @@ const SettingsSidebar = () => {
                                 type="checkbox"
                                 className="toggle toggle-success toggle-sm"
                                 checked={theme === "dark"}
-                                onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                onChange={() => {
+                                    const newTheme = theme === "dark" ? "light" : "dark";
+                                    setTheme(newTheme);
+                                    localStorage.setItem("theme", newTheme);
+                                }}
                             />
-                        </div>
-                        <div className="p-4 flex items-center gap-4 cursor-pointer" onClick={() => toast.success("Wallpaper settings coming soon!")}>
-                            <div className="scale-x-[-1] min-w-5 flex justify-center"><Bell className="size-5 text-[var(--wa-gray)]" /></div>
-                            <p className="text-[#e9edef]">Wallpaper</p>
                         </div>
                     </div>
                 </div>
+
                 <div className="space-y-4">
-                    <h3 className="text-[#00a884] text-sm font-medium ml-2">Chat settings</h3>
+                    <h3 className="text-[#00a884] text-sm font-medium ml-2 uppercase tracking-wider text-[11px]">Chat Wallpaper</h3>
+                    <div className="grid grid-cols-3 gap-2 px-2">
+                        {WALLPAPERS.map((w) => (
+                            <button
+                                key={w.id}
+                                onClick={() => {
+                                    setWallpaper(w.url);
+                                    handleUpdateChatSettings("wallpaper", w.url);
+                                }}
+                                className={`group relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${localWallpaper === w.url || authUser?.chatSettings?.wallpaper === w.url ? "border-[var(--wa-teal)]" : "border-transparent hover:border-white/20"}`}
+                            >
+                                <img src={w.url} alt={w.name} className="w-full h-full object-cover" />
+                                {(localWallpaper === w.url || authUser?.chatSettings?.wallpaper === w.url) && (
+                                    <div className="absolute top-1 right-1 bg-[var(--wa-teal)] rounded-full p-0.5">
+                                        <div className="size-1.5 bg-white rounded-full" />
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <h3 className="text-[#00a884] text-sm font-medium ml-2 uppercase tracking-wider text-[11px]">Chat settings</h3>
                     <div className="bg-[#202c33]/50 rounded-xl overflow-hidden ring-1 ring-white/5">
                         <div className="p-4 flex items-center justify-between border-b border-white/5">
                             <p className="text-[#e9edef]">Enter is send</p>
-                            <input type="checkbox" className="toggle toggle-success toggle-sm" defaultChecked />
+                            <input
+                                type="checkbox"
+                                className="toggle toggle-success toggle-sm"
+                                checked={authUser?.chatSettings?.enterIsSend !== false}
+                                onChange={(e) => handleUpdateChatSettings("enterIsSend", e.target.checked)}
+                            />
                         </div>
                         <div className="p-4 flex items-center justify-between">
                             <p className="text-[#e9edef]">Media visibility</p>
-                            <input type="checkbox" className="toggle toggle-success toggle-sm" defaultChecked />
+                            <input
+                                type="checkbox"
+                                className="toggle toggle-success toggle-sm"
+                                checked={authUser?.chatSettings?.mediaVisibility !== false}
+                                onChange={(e) => handleUpdateChatSettings("mediaVisibility", e.target.checked)}
+                            />
                         </div>
                     </div>
                 </div>

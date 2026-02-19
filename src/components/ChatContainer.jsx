@@ -10,7 +10,10 @@ import { motion, AnimatePresence } from "framer-motion";
 const ChatContainer = () => {
     const { messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unsubscribeFromMessages, searchQuery } = useChatStore();
     const { authUser } = useAuthStore();
-    const { wallpaper } = useThemeStore();
+    const { wallpaper: localWallpaper } = useThemeStore();
+    const wallpaper = authUser?.chatSettings?.wallpaper || localWallpaper;
+    const mediaVisibility = authUser?.chatSettings?.mediaVisibility !== false;
+
     const messageEndRef = useRef(null);
 
     useEffect(() => {
@@ -43,13 +46,14 @@ const ChatContainer = () => {
     return (
         <div className="flex flex-col h-full bg-[#0b141a] relative"
             style={{
-                backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')", // Standard WA Dark Doodle
-                backgroundSize: "400px",
-                backgroundRepeat: "repeat"
+                backgroundImage: wallpaper ? `url(${wallpaper})` : 'none',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat"
             }}
         >
             {/* Overlay for tint */}
-            <div className="absolute inset-0 bg-[#0b141a] opacity-90 pointer-events-none"></div>
+            <div className={`absolute inset-0 bg-[#0b141a] ${wallpaper ? "opacity-90" : "opacity-100"} pointer-events-none`}></div>
 
             <ChatHeader />
 
@@ -74,12 +78,19 @@ const ChatContainer = () => {
                                 >
                                     {/* Image Attachment */}
                                     {message.image && (
-                                        <img
-                                            src={message.image}
-                                            alt="Image"
-                                            className="max-w-full rounded-lg mb-1 cursor-pointer"
-                                            onClick={() => window.open(message.image, "_blank")}
-                                        />
+                                        <div className={`relative ${!mediaVisibility ? "filter blur-sm brightness-50" : ""}`}>
+                                            <img
+                                                src={message.image}
+                                                alt="Image"
+                                                className="max-w-full rounded-lg mb-1 cursor-pointer"
+                                                onClick={() => mediaVisibility && window.open(message.image, "_blank")}
+                                            />
+                                            {!mediaVisibility && (
+                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                    <Smile className="size-8 text-white/50" />
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
 
                                     {/* Text Content */}

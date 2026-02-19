@@ -14,6 +14,20 @@ const MessageInput = () => {
     const fileInputRef = useRef(null);
 
     const { sendMessage, selectedUser } = useChatStore();
+    const { authUser } = useAuthStore();
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            const enterIsSend = authUser?.chatSettings?.enterIsSend !== false;
+
+            if (e.shiftKey) return;
+
+            if (enterIsSend) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        }
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -107,6 +121,7 @@ const MessageInput = () => {
                     className="w-full bg-transparent border-none outline-none text-[#d1d7db] text-[15px] px-4 py-3 placeholder-[#8696a0]"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleKeyDown}
                 />
             </form>
 
